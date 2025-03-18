@@ -1,5 +1,7 @@
 use anyhow::Result;
 
+use std::fs;
+
 use crate::models::{DBState, Epic, Story, Status};
 
 trait Database {
@@ -13,11 +15,15 @@ struct JSONFileDatabase {
 
 impl Database for JSONFileDatabase {
     fn read_db(&self) -> Result<DBState> {
-        todo!() // read the content's of self.file_path and deserialize it using serde
+        let content = fs::read_to_string(&self.file_path)?;
+        let real_content: DBState = serde_json::from_str(&content)?;
+        Ok(real_content)
     }
 
     fn write_db(&self, db_state: &DBState) -> Result<()> {
-        todo!() // serialize db_state to json and store it in self.file_path
+        let serialized = serde_json::to_string_pretty(db_state)?;
+        fs::write(&self.file_path, &serialized)?;
+        Ok(())
     }
 }
 
